@@ -3,6 +3,7 @@
 
 IrrigationController::IrrigationController(StateBase *state) : state_(nullptr)
 {
+    action_requested_ = Action::None;
     valves_ = new Valve[6];
     configure_valves();
     this->transition_to(state);
@@ -25,6 +26,12 @@ void IrrigationController::do_work()
 void IrrigationController::check_conditions()
 {
     this->state_->check_conditions();
+}
+
+void IrrigationController::request_action(Action action, int valve_index)
+{
+    action_requested_ = action;
+    action_valve_inndex_ = valve_index;
 }
 
 void IrrigationController::configure_valves()

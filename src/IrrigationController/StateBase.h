@@ -4,14 +4,14 @@
 class StateBase 
 {
     protected:
-        IrrigationController *context_;
+        IrrigationController *controller_;
 
     public:
         virtual ~StateBase() {}
 
-  void StateBase::set_context(IrrigationController *context)
+  void StateBase::set_context(IrrigationController *controller)
   {
-    this->context_ = context;
+    this->controller_ = controller;
   }
 
   virtual void do_work() = 0;
