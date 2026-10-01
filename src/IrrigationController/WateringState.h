@@ -3,7 +3,12 @@
 
 class WateringState : public StateBase
 {
+    private:
+    int valve_index_;
     public:
-        void do_work() override;
-        void check_conditions() override;
+    WateringState(int valve_index);
+    void on_enter() override;
+    void update() override;
+    void start_watering(int valve_index) override;
+    void stop_watering(int valve_index) override;
 };

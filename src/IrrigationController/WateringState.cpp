@@ -1,9 +1,21 @@
 #include "WateringState.h"
 
-void WateringState::do_work()
+WateringState::WateringState(int valve_index)
 {
 }
 
-void WateringState::check_conditions()
+void WateringState::on_enter()
+{
+}
+
+void WateringState::update()
+{
+}
+
+void WateringState::start_watering(int valve_index)
+{
+}
+
+void WateringState::stop_watering(int valve_index)
 {
 }

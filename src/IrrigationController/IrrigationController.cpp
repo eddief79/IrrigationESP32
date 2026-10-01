@@ -3,7 +3,6 @@
 
 IrrigationController::IrrigationController(StateBase *state) : state_(nullptr)
 {
-    action_requested_ = Action::None;
     valves_ = new Valve[6];
     configure_valves();
     this->transition_to(state);
@@ -15,23 +14,23 @@ void IrrigationController::transition_to(StateBase *state)
     if (this->state_ != nullptr)
       delete this->state_;
     this->state_ = state;
-    this->state_->set_context(this);
+    this->state_->set_controller(this);
+    this->state_->on_enter(); 
 }
 
-void IrrigationController::do_work()
+void IrrigationController::update()
 {
-    this->state_->do_work();
+    this->state_->update();
 }
 
-void IrrigationController::check_conditions()
+void IrrigationController::start_watering(int valve_index)
 {
-    this->state_->check_conditions();
+    this->state_->start_watering(valve_index);
 }
 
-void IrrigationController::request_action(Action action, int valve_index)
+void IrrigationController::stop_watering(int valve_index)
 {
-    action_requested_ = action;
-    action_valve_inndex_ = valve_index;
+    this->state_->stop_watering(valve_index);
 }
 
 void IrrigationController::configure_valves()

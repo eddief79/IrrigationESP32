@@ -1,12 +1,12 @@
 #pragma once
+#include <string>
 #include "StateBase.h"
 
-class ClosingValveState : public StateBase
+class ErrorState : public StateBase
 {
     public:
-        ClosingValveState(int valve_index);
+        ErrorState(std::string error_message);
         void update() override;
-        void check_conditions() override;
         void start_watering(int valve_index) override;
         void stop_watering(int valve_index) override;
 };

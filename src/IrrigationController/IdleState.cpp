@@ -1,22 +1,22 @@
 #include "IdleState.h"
+#include "ErrorState.h"
 #include "OpeningValveState.h"
 
-void IdleState::do_work()
+void IdleState::on_enter()
 {
-    switch (this->controller_->action_requested_)
-    {
-        case Action::OpenValve:
-            this->controller_->transition_to(new OpeningValveState());
-            break;        
-        case Action::CloseValve:
-            this->controller_->transition_to(new OpeningValveState());
-            break;
-        default:
-            break;
-    }
 }
 
-void IdleState::check_conditions()
+void IdleState::update()
 {
-    
+    //TODO: If there is water flow in the Idle state try closing all valves, throw error.
+}
+
+void IdleState::start_watering(int valve_index)
+{
+    this->controller_->transition_to(new OpeningValveState(valve_index));
+}
+
+void IdleState::stop_watering(int valve_index)
+{
+    this->controller_->transition_to(new ErrorState("Stop watering was requested in the Idle state. Nothing to stop."));
 }
