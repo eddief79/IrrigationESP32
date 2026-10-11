@@ -9,9 +9,9 @@ class FlowMeter
         FlowMeter();
         FlowMeter(gpio_num_t pin);
         static void IRAM_ATTR isrHandler(void* arg);
-        esp_err_t begin(gpio_num_t pin);
 
         void update();
+        void resetSessionTotal();
 
         uint32_t getPulseCount() const;
         float getFlowRate() const;
@@ -23,5 +23,7 @@ class FlowMeter
         volatile uint32_t pulseCount_ = 0;
         uint32_t lastPulseCount_ = 0;
         float flowRate_ = 0.0f;
-        float totalLiters_ = 0.0f;        
+        float totalLiters_ = 0.0f;
+        float sessionTotalLiters_ = 0.0f;
+        void configure_hardware();    
 };

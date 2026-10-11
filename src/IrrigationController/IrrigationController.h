@@ -6,11 +6,11 @@
 class IrrigationController
 {
     private:        
+    StateBase *state_;
+    void configure_valves();
+    
+    public:
         FlowMeter& flowMeter_;
-        StateBase *state_;
-        void configure_valves();
-        
-        public:
         Valve* valves_;
         IrrigationController(FlowMeter& flowMeter, StateBase *state);
         void transition_to(StateBase *state);

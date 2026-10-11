@@ -12,4 +12,5 @@ class Valve
         gpio_num_t control_pin_1_;
         gpio_num_t control_pin_2_;
         gpio_num_t driver_enable_pin_;
+        void configure_hardware(); 
 };

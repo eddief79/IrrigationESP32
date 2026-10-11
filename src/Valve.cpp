@@ -8,9 +8,10 @@ Valve::Valve()
 
 Valve::Valve(gpio_num_t control_pin_1, gpio_num_t control_pin_2, gpio_num_t driver_enable_pin)
 {
-    this->control_pin_1_ = control_pin_1;
-    this->control_pin_2_ = control_pin_2;
-    this->driver_enable_pin_ = driver_enable_pin;
+    control_pin_1_ = control_pin_1;
+    control_pin_2_ = control_pin_2;
+    driver_enable_pin_ = driver_enable_pin;
+    configure_hardware();
 }
 
 void Valve::open()
@@ -35,4 +36,16 @@ void Valve::close()
     gpio_set_level(control_pin_1_, 0);
     gpio_set_level(control_pin_2_, 0);
     gpio_set_level(driver_enable_pin_, 0);
+}
+
+void Valve::configure_hardware()
+{
+    gpio_config_t valveConfig = {};
+    valveConfig.pin_bit_mask = 1ULL << control_pin_1_ | 1ULL << control_pin_2_ | 1ULL << driver_enable_pin_;
+    valveConfig.mode = GPIO_MODE_OUTPUT;
+    valveConfig.pull_up_en = GPIO_PULLUP_DISABLE;
+    valveConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    valveConfig.intr_type = GPIO_INTR_DISABLE;
+
+    ESP_ERROR_CHECK(gpio_config(&valveConfig));
 }
