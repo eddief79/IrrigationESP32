@@ -1,7 +1,7 @@
 #include "IrrigationController.h"
 #include "driver/gpio.h"
 
-IrrigationController::IrrigationController(StateBase *state) : state_(nullptr)
+IrrigationController::IrrigationController(FlowMeter& flowMeter, StateBase *state) : flowMeter_(flowMeter), state_(nullptr)
 {
     valves_ = new Valve[6];
     configure_valves();
@@ -20,6 +20,7 @@ void IrrigationController::transition_to(StateBase *state)
 
 void IrrigationController::update()
 {
+    this->flowMeter_.update();
     this->state_->update();
 }
 

@@ -6,8 +6,8 @@ class Valve
     public:
         Valve();
         Valve(gpio_num_t control_pin_1, gpio_num_t control_pin_2, gpio_num_t driver_enable_pin);
-        void Open();
-        void Close();
+        void open();
+        void close();
     private:
         gpio_num_t control_pin_1_;
         gpio_num_t control_pin_2_;

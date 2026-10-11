@@ -10,7 +10,7 @@ OpeningValveState::OpeningValveState(int valve_index)
 
 void OpeningValveState::on_enter()
 {
-    this->controller_->valves_[this->valve_index_].Open();
+    this->controller_->valves_[this->valve_index_].open();
     this->controller_->transition_to(new WateringState(valve_index_));
 }
 
