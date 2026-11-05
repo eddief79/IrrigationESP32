@@ -1,7 +1,8 @@
-#include "OpeningValveState.h"
-#include "ClosingValveState.h"
-#include "WateringState.h"
-#include "ErrorState.h"
+#include "IrrigationController/OpeningValveState.h"
+#include "IrrigationController/ClosingValveState.h"
+#include "IrrigationController/WateringState.h"
+#include "IrrigationController/ErrorState.h"
+#include "IrrigationController/IrrigationController.h"
 
 OpeningValveState::OpeningValveState(int valve_index)
 {

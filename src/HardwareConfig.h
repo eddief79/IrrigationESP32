@@ -4,7 +4,7 @@
 
 namespace Hardware
 {
-    constexpr gpio_num_t FLOW_METER_PIN = GPIO_NUM_4;
+    constexpr gpio_num_t FLOW_METER_PIN = GPIO_NUM_23;
     constexpr gpio_num_t VALVE_1_CONTROL_PIN_1 = GPIO_NUM_0;
     constexpr gpio_num_t VALVE_1_CONTROL_PIN_2 = GPIO_NUM_1;
     constexpr gpio_num_t VALVE_1_DRIVER_ENABLE_PIN = GPIO_NUM_2;
@@ -23,9 +23,9 @@ namespace Hardware
 
     constexpr gpio_num_t VALVE_5_CONTROL_PIN_1 = GPIO_NUM_12;
     constexpr gpio_num_t VALVE_5_CONTROL_PIN_2 = GPIO_NUM_13;
-    constexpr gpio_num_t VALVE_5_DRIVER_ENABLE_PIN = GPIO_NUM_14;
+    constexpr gpio_num_t VALVE_5_DRIVER_ENABLE_PIN = GPIO_NUM_15;
 
-    constexpr gpio_num_t VALVE_6_CONTROL_PIN_1 = GPIO_NUM_15;
-    constexpr gpio_num_t VALVE_6_CONTROL_PIN_2 = GPIO_NUM_16;
-    constexpr gpio_num_t VALVE_6_DRIVER_ENABLE_PIN = GPIO_NUM_17;
+    constexpr gpio_num_t VALVE_6_CONTROL_PIN_1 = GPIO_NUM_20;
+    constexpr gpio_num_t VALVE_6_CONTROL_PIN_2 = GPIO_NUM_21;
+    constexpr gpio_num_t VALVE_6_DRIVER_ENABLE_PIN = GPIO_NUM_22;
 }

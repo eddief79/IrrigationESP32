@@ -1,7 +1,8 @@
 #pragma once
 #include "Valve.h"
-#include "StateBase.h"
-#include <FlowMeter.h>
+#include "FlowMeter.h"
+
+class StateBase;
 
 class IrrigationController
 {
@@ -12,7 +13,7 @@ class IrrigationController
     public:
         FlowMeter& flowMeter_;
         Valve* valves_;
-        IrrigationController(FlowMeter& flowMeter, StateBase *state);
+        IrrigationController(StateBase *state, FlowMeter& flowMeter);
         void transition_to(StateBase *state);
         void update();
         void start_watering(int valve_index);

@@ -56,5 +56,5 @@ void FlowMeter::configure_hardware()
 void IRAM_ATTR FlowMeter::isrHandler(void *arg)
 {
     auto* meter = static_cast<FlowMeter*>(arg);
-    ++meter->pulseCount_;
+    meter->pulseCount_ = meter->pulseCount_ + 1;
 }

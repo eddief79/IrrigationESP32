@@ -1,17 +1,20 @@
-#include "IrrigationController.h"
+#include "IrrigationController/IrrigationController.h"
 #include "driver/gpio.h"
-#include <HardwareConfig.h>
+#include "HardwareConfig.h"
+#include "IrrigationController/StateBase.h"
+#include <esp_log.h>
 
-IrrigationController::IrrigationController(FlowMeter& flowMeter, StateBase *state) : flowMeter_(flowMeter), state_(nullptr)
+IrrigationController::IrrigationController(StateBase* state, FlowMeter& flowMeter)
+    : state_(nullptr),
+      flowMeter_(flowMeter),
+      valves_(new Valve[6])
 {
-    valves_ = new Valve[6];
     configure_valves();
     transition_to(state);
 }
 
 void IrrigationController::transition_to(StateBase *state)
 {
-    //std::cout << "Context: Transition to " << typeid(*state).name() << ".\n";
     if (state_ != nullptr)
       delete state_;
     state_ = state;

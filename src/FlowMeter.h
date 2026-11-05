@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdint>
 #include <esp_attr.h>
 #include <soc/gpio_num.h>

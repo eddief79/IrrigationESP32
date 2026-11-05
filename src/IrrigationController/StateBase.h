@@ -1,5 +1,6 @@
 #pragma once
-#include "IrrigationController.h"
+
+class IrrigationController;
 
 class StateBase 
 {
@@ -9,7 +10,7 @@ class StateBase
     public:
         virtual ~StateBase() {}
 
-  void StateBase::set_controller(IrrigationController *controller)
+  void set_controller(IrrigationController *controller)
   {
     this->controller_ = controller;
   }

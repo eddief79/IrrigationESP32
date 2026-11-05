@@ -1,5 +1,6 @@
-#include "ClosingValveState.h"
-#include "IdleState.h"
+#include "IrrigationController/ClosingValveState.h"
+#include "IrrigationController/IdleState.h"
+#include "IrrigationController/IrrigationController.h"
 
 ClosingValveState::ClosingValveState(int valve_index)
 {
