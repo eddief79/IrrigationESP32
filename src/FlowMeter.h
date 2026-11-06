@@ -22,6 +22,10 @@ class FlowMeter
     private:    
         gpio_num_t pin_;
         static constexpr float PULSES_PER_LITER = 660.0f;
+        static constexpr uint32_t FLOW_FILTER_SHIFT = 3;
+        static constexpr uint64_t NO_FLOW_TIMEOUT_US = 500000;
+        volatile uint64_t lastPulseTimeUs_ = 0;
+        volatile uint32_t filteredPeriodUs_ = 0;
         volatile uint32_t pulseCount_ = 0;
         uint32_t lastPulseCount_ = 0;
         float flowRate_ = 0.0f;

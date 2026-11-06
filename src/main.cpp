@@ -5,6 +5,7 @@
 #include "IrrigationController/IdleState.h"
 #include "FlowMeter.h"
 #include "HardwareConfig.h"
+#include <esp_log.h>
 
 FlowMeter meter(Hardware::FLOW_METER_PIN);
 IrrigationController controller(new IdleState(), meter);
@@ -30,14 +31,16 @@ IrrigationController controller(new IdleState(), meter);
 // }
 
 extern "C" void app_main()
-{
-    while(1)
-    {
-        printf("Hello from ESP32-C6!\n");
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-
-    // ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_IRAM));
+{    
+    ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_IRAM));
+    gpio_isr_handler_add(Hardware::FLOW_METER_PIN, FlowMeter::isrHandler, &meter);
     // xTaskCreate(irrigation_task, "irrigation", 2048, &controller, 3, NULL);
     // xTaskCreate(zigbee_task, "zigbee", 2048, NULL, 3, NULL);
+
+    while(1)
+    {
+        meter.update();
+        ESP_LOGI("IRRIGATION", "Flow rate: %f L/min; Total liters: %f", meter.getFlowRate(), meter.getTotalLiters());
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
 }
