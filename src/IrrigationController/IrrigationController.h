@@ -1,22 +1,26 @@
 #pragma once
+#include <queue>
 #include "Valve.h"
 #include "FlowMeter.h"
+#include "IrrigationController/IrrigationRequest.h"
 
 class StateBase;
 
 class IrrigationController
 {
     private:        
-    StateBase *state_;
-    void configure_valves();
-    
-    public:
+        StateBase *state_;
+        void configure_valves();
+        std::queue<IrrigationRequest> requestQueue_;
+        
+        public:
         FlowMeter& flowMeter_;
         Valve* valves_;
-        IrrigationController(StateBase *state, FlowMeter& flowMeter);
+        IrrigationController(FlowMeter& flowMeter);
         void transition_to(StateBase *state);
         void update();
-        void start_watering(int valve_index);
-        void stop_watering(int valve_index);
+        void request_start_watering(int zone);
+        void request_stop_watering(int zone);
+        std::optional<IrrigationRequest> get_next_request();
         ~IrrigationController();
 };

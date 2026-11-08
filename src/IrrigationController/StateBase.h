@@ -17,6 +17,4 @@ class StateBase
 
   virtual void on_enter() = 0;
   virtual void update() = 0;
-  virtual void start_watering(int valve_index) = 0;
-  virtual void stop_watering(int valve_index) = 0;
 };

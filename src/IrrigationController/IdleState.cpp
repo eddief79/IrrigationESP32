@@ -5,22 +5,39 @@
 
 void IdleState::on_enter()
 {
+    delay_ = 0;
 }
 
 void IdleState::update()
 {
-    if (controller_->flowMeter_.getFlowRate() > 0.0f) //TODO: Add a threshold to avoid false positives from noise in the flow meter signal.
+    process_request();
+
+    // Allow a few seconds for the flow to stabilize before throwing an error.
+    if (delay_ < FLOW_CHECK_DELAY_SECONDS) 
+        ++delay_;
+
+    if (delay_ >= FLOW_CHECK_DELAY_SECONDS && controller_->flowMeter_.getFlowRate() > 0.0f) //TODO: Add a threshold to avoid false positives from noise in the flow meter signal.
     {
         controller_->transition_to(new ErrorState("Water flow detected in Idle state. All valves should be closed."));
     }
 }
 
-void IdleState::start_watering(int valve_index)
+void IdleState::process_request()
 {
-    controller_->transition_to(new OpeningValveState(valve_index));
-}
+    auto request_opt = controller_->get_next_request();
 
-void IdleState::stop_watering(int valve_index)
-{
-    controller_->transition_to(new ErrorState("Stop watering was requested in the Idle state. Nothing to stop."));
+    if (request_opt.has_value())
+    {
+        IrrigationRequest request = request_opt.value();    
+
+        switch (request.type)
+        {
+            case RequestType::StartWatering:
+                controller_->transition_to(new OpeningValveState(request.zone));
+                break;
+            case RequestType::StopWatering:
+                controller_->transition_to(new ErrorState("Stop watering requested in the idle state. Nothing to stop."));
+                break;
+        }
+    }
 }

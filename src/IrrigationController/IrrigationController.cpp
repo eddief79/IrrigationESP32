@@ -1,16 +1,17 @@
 #include "IrrigationController/IrrigationController.h"
-#include "driver/gpio.h"
 #include "HardwareConfig.h"
 #include "IrrigationController/StateBase.h"
-#include <esp_log.h>
+#include "IrrigationController/IdleState.h"
+#include "IrrigationController/OpeningValveState.h"
+#include "IrrigationController/ClosingValveState.h"
 
-IrrigationController::IrrigationController(StateBase* state, FlowMeter& flowMeter)
+IrrigationController::IrrigationController(FlowMeter& flowMeter)
     : state_(nullptr),
       flowMeter_(flowMeter),
       valves_(new Valve[6])
 {
     configure_valves();
-    transition_to(state);
+    transition_to(new IdleState());
 }
 
 void IrrigationController::transition_to(StateBase *state)
@@ -28,14 +29,24 @@ void IrrigationController::update()
     state_->update();
 }
 
-void IrrigationController::start_watering(int valve_index)
+void IrrigationController::request_start_watering(int zone)
 {
-    state_->start_watering(valve_index);
+    requestQueue_.push({RequestType::StartWatering, zone});
 }
 
-void IrrigationController::stop_watering(int valve_index)
+void IrrigationController::request_stop_watering(int zone)
 {
-    state_->stop_watering(valve_index);
+    requestQueue_.push({RequestType::StopWatering, zone});
+}
+
+std::optional<IrrigationRequest> IrrigationController::get_next_request()
+{
+    if (requestQueue_.empty())
+        return std::nullopt;
+
+    IrrigationRequest request = requestQueue_.front();
+    requestQueue_.pop();
+    return request;
 }
 
 void IrrigationController::configure_valves()

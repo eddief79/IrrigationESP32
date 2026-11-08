@@ -20,19 +20,3 @@ void OpeningValveState::update()
 {    
 }
 
-void OpeningValveState::start_watering(int valve_index)
-{
-    controller_->transition_to(new ErrorState("Start watering requested in the opening valve state. Only one valve can be open at a time."));
-}
-
-void OpeningValveState::stop_watering(int valve_index)
-{
-    if (valve_index == this->valve_index_)
-    {
-        controller_->transition_to(new ClosingValveState(valve_index_));
-    }
-    else
-    {
-        controller_->transition_to(new ErrorState("Stop watering was requested for a zone that is not on."));
-    }
-}

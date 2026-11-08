@@ -2,13 +2,12 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "IrrigationController/IrrigationController.h"
-#include "IrrigationController/IdleState.h"
 #include "FlowMeter.h"
 #include "HardwareConfig.h"
 #include <esp_log.h>
 
 FlowMeter meter(Hardware::FLOW_METER_PIN);
-IrrigationController controller(new IdleState(), meter);
+IrrigationController controller(meter);
     
 // void zigbee_task(void *arg) 
 // { 

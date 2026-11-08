@@ -11,11 +11,3 @@ void ErrorState::on_enter()
 void ErrorState::update()
 {
 }
-
-void ErrorState::start_watering(int valve_index)
-{
-}
-
-void ErrorState::stop_watering(int valve_index)
-{
-}
