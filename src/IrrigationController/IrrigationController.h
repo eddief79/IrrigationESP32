@@ -13,7 +13,7 @@ class IrrigationController
         void configure_valves();
         std::queue<IrrigationRequest> requestQueue_;
         
-        public:
+    public:
         FlowMeter& flowMeter_;
         Valve* valves_;
         IrrigationController(FlowMeter& flowMeter);

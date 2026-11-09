@@ -15,7 +15,8 @@ void WateringState::on_enter()
 
 void WateringState::update()
 {
-    process_request();
+    if (process_request())
+        return;
 
     // Allow a few seconds for the flow to stabilize before throwing an error.
     if (delay_ < FLOW_CHECK_DELAY_SECONDS) 
@@ -25,7 +26,7 @@ void WateringState::update()
         controller_->transition_to(new ErrorState("No water flow detected in Watering state."));
 }
 
-void WateringState::process_request()
+bool WateringState::process_request()
 {
     auto request_opt = controller_->get_next_request();
 
@@ -37,13 +38,14 @@ void WateringState::process_request()
         {
             case RequestType::StartWatering:
                 controller_->transition_to(new ErrorState("Start watering requested in the watering state. Only one valve can be open at a time."));
-                break;
+                return true;
             case RequestType::StopWatering:
                 if (request.zone == valve_index_)
                     controller_->transition_to(new ClosingValveState(request.zone));
                 else
                     controller_->transition_to(new ErrorState("Stop watering was requested for a zone that is not on."));
-                break;
+                return true;
         }
     }
+    return false;
 }

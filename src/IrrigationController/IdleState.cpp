@@ -10,7 +10,8 @@ void IdleState::on_enter()
 
 void IdleState::update()
 {
-    process_request();
+    if (process_request())
+        return;
 
     // Allow a few seconds for the flow to stabilize before throwing an error.
     if (delay_ < FLOW_CHECK_DELAY_SECONDS) 
@@ -22,7 +23,7 @@ void IdleState::update()
     }
 }
 
-void IdleState::process_request()
+bool IdleState::process_request()
 {
     auto request_opt = controller_->get_next_request();
 
@@ -34,10 +35,11 @@ void IdleState::process_request()
         {
             case RequestType::StartWatering:
                 controller_->transition_to(new OpeningValveState(request.zone));
-                break;
+                return true;
             case RequestType::StopWatering:
                 controller_->transition_to(new ErrorState("Stop watering requested in the idle state. Nothing to stop."));
-                break;
+                return true;
         }
     }
+    return false;
 }

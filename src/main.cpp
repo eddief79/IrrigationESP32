@@ -18,28 +18,40 @@ IrrigationController controller(meter);
 //     }
 // }
 
-// void irrigation_task(void *arg) 
-// {
+void irrigation_task(void *arg) 
+{
     
-//     for (;;) 
-//     {
-//         auto& controller = *static_cast<IrrigationController*>(arg);
-//         controller.update();
-//         vTaskDelay(pdMS_TO_TICKS(1000));
-//     }
-// }
+    for (;;) 
+    {
+        auto& controller = *static_cast<IrrigationController*>(arg);
+        controller.update();
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
 
 extern "C" void app_main()
 {    
     ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_IRAM));
     gpio_isr_handler_add(Hardware::FLOW_METER_PIN, FlowMeter::isrHandler, &meter);
-    // xTaskCreate(irrigation_task, "irrigation", 2048, &controller, 3, NULL);
+    xTaskCreate(irrigation_task, "irrigation", 2048, &controller, 3, NULL);
     // xTaskCreate(zigbee_task, "zigbee", 2048, NULL, 3, NULL);
 
     while(1)
     {
-        meter.update();
-        ESP_LOGI("IRRIGATION", "Flow rate: %f L/min; Total liters: %f", meter.getFlowRate(), meter.getTotalLiters());
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        for (size_t i = 0; i < 6; ++i)
+        {
+            for (int j = 0; j < 10; ++j)
+            {
+                ESP_LOGI("IRRIGATION", "Opening valve %d", i);
+                controller.request_start_watering(i);
+                vTaskDelay(pdMS_TO_TICKS(3000));
+                ESP_LOGI("IRRIGATION", "Closing valve %d", i);
+                controller.request_stop_watering(i);
+                vTaskDelay(pdMS_TO_TICKS(3000));
+            }
+        }        
+        //meter.update();
+        //ESP_LOGI("IRRIGATION", "Flow rate: %f L/min; Total liters: %f", meter.getFlowRate(), meter.getTotalLiters());
+        //vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

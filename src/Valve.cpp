@@ -1,5 +1,6 @@
 #include "Valve.h"
 #include "driver/gpio.h"
+#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 
 Valve::Valve()
@@ -16,6 +17,7 @@ Valve::Valve(gpio_num_t control_pin_1, gpio_num_t control_pin_2, gpio_num_t driv
 
 void Valve::open()
 {
+    ESP_LOGI("IRRIGATION", "Setting pin %d to HIGH", driver_enable_pin_);
     gpio_set_level(driver_enable_pin_, 1);    
     vTaskDelay(pdMS_TO_TICKS(2)); //wait 2-3ms
     gpio_set_level(control_pin_1_, 1);
@@ -23,6 +25,7 @@ void Valve::open()
     vTaskDelay(pdMS_TO_TICKS(50)); //wait 50ms
     gpio_set_level(control_pin_1_, 0);
     gpio_set_level(control_pin_2_, 0);
+    ESP_LOGI("IRRIGATION", "Setting pin %d to LOW", driver_enable_pin_);
     gpio_set_level(driver_enable_pin_, 0);
 }
 

@@ -11,5 +11,5 @@ class WateringState : public StateBase
         WateringState(int valve_index);
         void on_enter() override;
         void update() override;
-        void process_request();
+        bool process_request();
 };

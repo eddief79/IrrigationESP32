@@ -2,8 +2,6 @@
 #include "HardwareConfig.h"
 #include "IrrigationController/StateBase.h"
 #include "IrrigationController/IdleState.h"
-#include "IrrigationController/OpeningValveState.h"
-#include "IrrigationController/ClosingValveState.h"
 
 IrrigationController::IrrigationController(FlowMeter& flowMeter)
     : state_(nullptr),
