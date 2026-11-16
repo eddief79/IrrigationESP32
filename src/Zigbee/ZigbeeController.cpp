@@ -212,6 +212,7 @@ void ZigbeeController::handle_on_off_attribute(ezb_zcl_set_attr_value_message_t 
     
     if (!result)
         ESP_LOGE(TAG, "Dropping zone %u command: irrigation queue is full", zone);
+        //TODO: Consider sending a response back to the Zigbee device indicating that the request was rejected.
 }
 
 ZigbeeController* ZigbeeController::instance_ = nullptr;
@@ -220,10 +221,25 @@ ZigbeeController::ZigbeeController(IrrigationController &controller)
     : irigationController_(controller)
 {
     instance_ = this;
+    irigationController_.set_event_listener(this);
 }
 
 void ZigbeeController::start()
 {
     BaseType_t result = xTaskCreate(task_entry, "zigbee", 8192, this, 5, &taskHandle_);
     configASSERT(result == pdPASS);
+}
+
+void ZigbeeController::on_request_rejected(const IrrigationRequest &request)
+{
+}
+
+void ZigbeeController::on_watering_started(uint8_t zone)
+{
+    set_zigbee_zone_state(zone, true);
+}
+
+void ZigbeeController::on_watering_completed(uint8_t zone, float liters)
+{
+    set_zigbee_zone_state(zone, false);
 }

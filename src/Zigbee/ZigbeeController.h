@@ -6,10 +6,11 @@
 #include "ezbee/zcl/cluster/on_off_desc.h"
 #include "ezbee/zcl/zcl_common.h"
 #include <esp_zigbee.h>
+#include "IrrigationController/IrrigationEventListener.h"
 
 class IrrigationController;
 
-class ZigbeeController
+class ZigbeeController : public IrrigationEventListener
 {
     private:
         static ZigbeeController* instance_;
@@ -30,4 +31,7 @@ class ZigbeeController
     public:
         ZigbeeController(IrrigationController& controller);
         void start();
+        void on_request_rejected(const IrrigationRequest& request) override;
+        void on_watering_started(uint8_t zone) override;
+        void on_watering_completed(uint8_t zone, float liters) override;
 };

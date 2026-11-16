@@ -11,6 +11,7 @@ WateringState::WateringState(int valve_index)
 void WateringState::on_enter()
 {
     delay_ = 0;
+    controller_->eventListener_->on_watering_started(valve_index_);
 }
 
 void WateringState::update()

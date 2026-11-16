@@ -2,6 +2,7 @@
 #include "IrrigationController/IrrigationController.h"
 #include "IrrigationController/StateBase.h"
 #include "IrrigationController/IdleState.h"
+#include "IrrigationController/IrrigationEventListener.h"
 
 IrrigationController::IrrigationController(FlowMeter& flowMeter)
     : state_(nullptr),
@@ -73,6 +74,11 @@ std::optional<IrrigationRequest> IrrigationController::get_next_request()
         return std::nullopt;
 
     return request;
+}
+
+void IrrigationController::set_event_listener(IrrigationEventListener *listener)
+{
+    eventListener_ = listener;
 }
 
 void IrrigationController::configure_valves()
