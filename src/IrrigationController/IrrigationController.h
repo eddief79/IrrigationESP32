@@ -3,6 +3,8 @@
 #include "Valve.h"
 #include "FlowMeter.h"
 #include "IrrigationController/IrrigationRequest.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
 
 class StateBase;
 
@@ -11,16 +13,17 @@ class IrrigationController
     private:        
         StateBase *state_;
         void configure_valves();
-        std::queue<IrrigationRequest> requestQueue_;
+        QueueHandle_t requestQueue_;
         
-    public:
+        public:
         FlowMeter& flowMeter_;
         Valve* valves_;
         IrrigationController(FlowMeter& flowMeter);
+        void start();
         void transition_to(StateBase *state);
         void update();
-        void request_start_watering(int zone);
-        void request_stop_watering(int zone);
+        bool request_start_watering(uint8_t  zone);
+        bool request_stop_watering(uint8_t  zone);
         std::optional<IrrigationRequest> get_next_request();
         ~IrrigationController();
 };

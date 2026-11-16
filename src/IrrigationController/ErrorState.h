@@ -1,6 +1,6 @@
 #pragma once
-#include <string>
 #include "IrrigationController/StateBase.h"
+#include <string>
 
 class ErrorState : public StateBase
 {

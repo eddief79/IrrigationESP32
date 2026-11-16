@@ -7,5 +7,5 @@ enum class RequestType
 struct IrrigationRequest
 {
     RequestType type;
-    int zone;
+    uint8_t zone;
 };

@@ -1,5 +1,5 @@
-#include "IrrigationController/IrrigationController.h"
 #include "HardwareConfig.h"
+#include "IrrigationController/IrrigationController.h"
 #include "IrrigationController/StateBase.h"
 #include "IrrigationController/IdleState.h"
 
@@ -8,8 +8,26 @@ IrrigationController::IrrigationController(FlowMeter& flowMeter)
       flowMeter_(flowMeter),
       valves_(new Valve[6])
 {
+    requestQueue_ = xQueueCreate(10, sizeof(IrrigationRequest));
+    configASSERT(requestQueue_ != nullptr);
     configure_valves();
     transition_to(new IdleState());
+}
+
+void irrigation_task(void *arg) 
+{    
+    for (;;) 
+    {
+        auto& controller = *static_cast<IrrigationController*>(arg);
+        controller.update();
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
+void IrrigationController::start()
+{
+    BaseType_t task_result = xTaskCreate(irrigation_task, "irrigation", 4096, this, 3, nullptr);
+    configASSERT(task_result == pdPASS);
 }
 
 void IrrigationController::transition_to(StateBase *state)
@@ -27,23 +45,33 @@ void IrrigationController::update()
     state_->update();
 }
 
-void IrrigationController::request_start_watering(int zone)
+bool IrrigationController::request_start_watering(uint8_t  zone)
 {
-    requestQueue_.push({RequestType::StartWatering, zone});
+    IrrigationRequest request{
+        RequestType::StartWatering,
+        zone
+    };
+
+    return xQueueSend(requestQueue_, &request, 0) == pdPASS;
 }
 
-void IrrigationController::request_stop_watering(int zone)
+bool IrrigationController::request_stop_watering(uint8_t  zone)
 {
-    requestQueue_.push({RequestType::StopWatering, zone});
+    IrrigationRequest request{
+        RequestType::StopWatering,
+        zone
+    };
+
+    return xQueueSend(requestQueue_, &request, 0) == pdPASS;
 }
 
 std::optional<IrrigationRequest> IrrigationController::get_next_request()
 {
-    if (requestQueue_.empty())
+    IrrigationRequest request;
+
+    if (xQueueReceive(requestQueue_, &request, 0) != pdPASS)
         return std::nullopt;
 
-    IrrigationRequest request = requestQueue_.front();
-    requestQueue_.pop();
     return request;
 }
 

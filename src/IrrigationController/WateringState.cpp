@@ -22,7 +22,7 @@ void WateringState::update()
     if (delay_ < FLOW_CHECK_DELAY_SECONDS) 
         ++delay_;
     
-    if (delay_ >= FLOW_CHECK_DELAY_SECONDS && controller_->flowMeter_.getFlowRate() > 0.1f) //TODO: Add a threshold to avoid false positives.
+    if (delay_ >= FLOW_CHECK_DELAY_SECONDS && controller_->flowMeter_.getFlowRate() < 0.5f) //TODO: Add a threshold to avoid false positives.
         controller_->transition_to(new ErrorState("No water flow detected in Watering state."));
 }
 
