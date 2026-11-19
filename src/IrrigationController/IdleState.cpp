@@ -2,6 +2,7 @@
 #include "IrrigationController/ErrorState.h"
 #include "IrrigationController/OpeningValveState.h"
 #include "IrrigationController/IrrigationController.h"
+#include "GeneralConfig.h"
 
 void IdleState::on_enter()
 {
@@ -14,10 +15,11 @@ void IdleState::update()
         return;
 
     // Allow a few seconds for the flow to stabilize before throwing an error.
-    if (delay_ < FLOW_CHECK_DELAY_SECONDS) 
+    if (delay_ < GeneralConfig::FLOW_CHECK_DELAY_SECONDS) 
         ++delay_;
 
-    if (delay_ >= FLOW_CHECK_DELAY_SECONDS && controller_->flowMeter_.getFlowRate() > 0.0f) //TODO: Add a threshold to avoid false positives from noise in the flow meter signal.
+    if (delay_ >= GeneralConfig::FLOW_CHECK_DELAY_SECONDS 
+        && controller_->flowMeter_.getFlowRate() > GeneralConfig::ZERO_FLOW_RATE_THRESHOLD)
     {
         controller_->transition_to(new ErrorState("Water flow detected in Idle state. All valves should be closed."));
     }

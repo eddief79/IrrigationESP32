@@ -1,3 +1,4 @@
+#include "GeneralConfig.h"
 #include "IrrigationController/WateringState.h"
 #include "IrrigationController/IrrigationController.h"
 #include "IrrigationController/ErrorState.h"
@@ -20,11 +21,14 @@ void WateringState::update()
         return;
 
     // Allow a few seconds for the flow to stabilize before throwing an error.
-    if (delay_ < FLOW_CHECK_DELAY_SECONDS) 
+    if (delay_ < GeneralConfig::FLOW_CHECK_DELAY_SECONDS) 
         ++delay_;
     
-    if (delay_ >= FLOW_CHECK_DELAY_SECONDS && controller_->flowMeter_.getFlowRate() < 0.5f) //TODO: Add a threshold to avoid false positives.
+    if (delay_ >= GeneralConfig::FLOW_CHECK_DELAY_SECONDS 
+        && controller_->flowMeter_.getFlowRate() < GeneralConfig::MIN_WATERING_FLOW_RATE_THRESHOLD)
+    {
         controller_->transition_to(new ErrorState("No water flow detected in Watering state."));
+    }
 }
 
 bool WateringState::process_request()

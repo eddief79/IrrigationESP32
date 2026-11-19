@@ -3,10 +3,10 @@
 #include "freertos/timers.h"
 #include "Zigbee/ZigbeeController.h"
 #include "IrrigationController/IrrigationController.h"
+#include "GeneralConfig.h"
 
 constexpr char TAG[] = "IRRIGATION_ZIGBEE";
 constexpr uint8_t FIRST_ENDPOINT = 1;
-constexpr uint8_t ZONE_COUNT = 6;
 constexpr uint32_t ALL_ZIGBEE_CHANNELS = 0x07FFF800U;
 constexpr char MANUFACTURER[] = "\x0f" "Open Irrigation";
 constexpr char MODEL[] = "\x0f" "IrrigationESP32";
@@ -68,7 +68,7 @@ void ZigbeeController::zigbee_action_handler(ezb_zcl_core_action_callback_id_t c
 
 void ZigbeeController::set_zigbee_zone_state(uint8_t zone, bool on)
 {
-    if (zone >= ZONE_COUNT)
+    if (zone >= GeneralConfig::ZONE_COUNT)
         return;
 
     const uint8_t endpoint = FIRST_ENDPOINT + zone;
@@ -138,7 +138,7 @@ esp_err_t ZigbeeController::create_zone_endpoints()
     if (device == nullptr)
         return ESP_FAIL;
 
-    for (uint8_t zone = 0; zone < ZONE_COUNT; ++zone)
+    for (uint8_t zone = 0; zone < GeneralConfig::ZONE_COUNT; ++zone)
     {
         ezb_zcl_basic_cluster_server_config_t basic_config = {
             .zcl_version = EZB_ZCL_BASIC_ZCL_VERSION_DEFAULT_VALUE,
@@ -198,7 +198,7 @@ void ZigbeeController::handle_on_off_attribute(ezb_zcl_set_attr_value_message_t 
     }
 
     const uint8_t endpoint = message->info.dst_ep;
-    if (endpoint < FIRST_ENDPOINT || endpoint >= FIRST_ENDPOINT + ZONE_COUNT)
+    if (endpoint < FIRST_ENDPOINT || endpoint >= FIRST_ENDPOINT + GeneralConfig::ZONE_COUNT)
         return;
 
     bool startWaterinng = *static_cast<const uint8_t*>(message->in.attribute.data.value) != 0;

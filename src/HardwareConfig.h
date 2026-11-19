@@ -2,7 +2,7 @@
 
 #include "driver/gpio.h"
 
-namespace Hardware
+namespace HardwareConfig
 {
     constexpr gpio_num_t FLOW_METER_PIN = GPIO_NUM_12;
     

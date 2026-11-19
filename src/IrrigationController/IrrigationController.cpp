@@ -1,3 +1,4 @@
+#include "GeneralConfig.h"
 #include "HardwareConfig.h"
 #include "IrrigationController/IrrigationController.h"
 #include "IrrigationController/StateBase.h"
@@ -7,7 +8,7 @@
 IrrigationController::IrrigationController(FlowMeter& flowMeter)
     : state_(nullptr),
       flowMeter_(flowMeter),
-      valves_(new Valve[6])
+      valves_(new Valve[GeneralConfig::ZONE_COUNT])
 {
     requestQueue_ = xQueueCreate(10, sizeof(IrrigationRequest));
     configASSERT(requestQueue_ != nullptr);
@@ -83,12 +84,36 @@ void IrrigationController::set_event_listener(IrrigationEventListener *listener)
 
 void IrrigationController::configure_valves()
 {
-    valves_[0] = Valve(Hardware::VALVE_1_CONTROL_PIN_1, Hardware::VALVE_1_CONTROL_PIN_2, Hardware::VALVE_1_DRIVER_ENABLE_PIN);
-    valves_[1] = Valve(Hardware::VALVE_2_CONTROL_PIN_1, Hardware::VALVE_2_CONTROL_PIN_2, Hardware::VALVE_2_DRIVER_ENABLE_PIN);
-    valves_[2] = Valve(Hardware::VALVE_3_CONTROL_PIN_1, Hardware::VALVE_3_CONTROL_PIN_2, Hardware::VALVE_3_DRIVER_ENABLE_PIN);
-    valves_[3] = Valve(Hardware::VALVE_4_CONTROL_PIN_1, Hardware::VALVE_4_CONTROL_PIN_2, Hardware::VALVE_4_DRIVER_ENABLE_PIN);
-    valves_[4] = Valve(Hardware::VALVE_5_CONTROL_PIN_1, Hardware::VALVE_5_CONTROL_PIN_2, Hardware::VALVE_5_DRIVER_ENABLE_PIN);
-    valves_[5] = Valve(Hardware::VALVE_6_CONTROL_PIN_1, Hardware::VALVE_6_CONTROL_PIN_2, Hardware::VALVE_6_DRIVER_ENABLE_PIN);
+    valves_[0] = Valve(
+        HardwareConfig::VALVE_1_CONTROL_PIN_1, 
+        HardwareConfig::VALVE_1_CONTROL_PIN_2, 
+        HardwareConfig::VALVE_1_DRIVER_ENABLE_PIN
+    );
+    valves_[1] = Valve(
+        HardwareConfig::VALVE_2_CONTROL_PIN_1, 
+        HardwareConfig::VALVE_2_CONTROL_PIN_2, 
+        HardwareConfig::VALVE_2_DRIVER_ENABLE_PIN
+    );
+    valves_[2] = Valve(
+        HardwareConfig::VALVE_3_CONTROL_PIN_1, 
+        HardwareConfig::VALVE_3_CONTROL_PIN_2, 
+        HardwareConfig::VALVE_3_DRIVER_ENABLE_PIN
+    );
+    valves_[3] = Valve(
+        HardwareConfig::VALVE_4_CONTROL_PIN_1, 
+        HardwareConfig::VALVE_4_CONTROL_PIN_2, 
+        HardwareConfig::VALVE_4_DRIVER_ENABLE_PIN
+    );
+    valves_[4] = Valve(
+        HardwareConfig::VALVE_5_CONTROL_PIN_1, 
+        HardwareConfig::VALVE_5_CONTROL_PIN_2, 
+        HardwareConfig::VALVE_5_DRIVER_ENABLE_PIN
+    );
+    valves_[5] = Valve(
+        HardwareConfig::VALVE_6_CONTROL_PIN_1, 
+        HardwareConfig::VALVE_6_CONTROL_PIN_2, 
+        HardwareConfig::VALVE_6_DRIVER_ENABLE_PIN
+    );
 }
 
 IrrigationController::~IrrigationController()

@@ -16,7 +16,7 @@ class IrrigationController
         void configure_valves();
         QueueHandle_t requestQueue_;
         
-        public:
+    public:
         FlowMeter& flowMeter_;
         Valve* valves_;
         IrrigationEventListener* eventListener_ = nullptr;
