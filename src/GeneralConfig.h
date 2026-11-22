@@ -10,6 +10,12 @@ namespace GeneralConfig
     /// This allows the flow to stabilize and reduces the chance of raising false errors.
     constexpr uint8_t FLOW_CHECK_DELAY_SECONDS = 3;
 
+    /// @brief Maximum watering cycle duration before entering the error state.
+    constexpr uint32_t MAX_WATERING_DURATION_SECONDS = 60 * 60;
+
+    /// @brief Maximum watering cycle volume before entering the error state.
+    constexpr float MAX_WATERING_VOLUME_LITERS = 100.0f;
+
     /// @brief The flow rate threshold, in liters per minute, below which the flow is considered to be zero.
     constexpr float ZERO_FLOW_RATE_THRESHOLD = 0.1f;
 

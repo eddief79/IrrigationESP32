@@ -6,6 +6,7 @@
 #include "IrrigationController/IrrigationEventListener.h"
 #include <FlowMeter.h>
 #include <WaterUsage.h>
+#include <esp_timer.h>
 
 IrrigationController::IrrigationController(FlowMeter& flowMeter, WaterUsage& waterUsage)
     : flowMeter_(flowMeter),
@@ -101,6 +102,20 @@ WaterUsage &IrrigationController::get_water_usage()
 uint64_t IrrigationController::get_water_used_delta()
 {
     return waterUsedDelta_ml_;
+}
+
+void IrrigationController::start_watering_timer()
+{
+    wateringStartTimeUs_ = esp_timer_get_time();
+}
+
+uint64_t IrrigationController::get_watering_elapsed_seconds() const
+{
+    if (wateringStartTimeUs_ == 0)
+        return 0;
+
+    const int64_t elapsedUs = esp_timer_get_time() - wateringStartTimeUs_;
+    return elapsedUs > 0 ? static_cast<uint64_t>(elapsedUs) / 1000000ULL : 0;
 }
 
 void IrrigationController::configure_valves()

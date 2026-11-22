@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <queue>
 #include "Valve.h"
 #include "IrrigationController/IrrigationRequest.h"
@@ -18,6 +19,7 @@ class IrrigationController
         StateBase *state_;
         QueueHandle_t requestQueue_;
         uint64_t waterUsedDelta_ml_ = 0;
+        int64_t wateringStartTimeUs_ = 0;
         void configure_valves();
         
     public:
@@ -34,5 +36,7 @@ class IrrigationController
         FlowMeter& get_flow_meter();
         WaterUsage& get_water_usage();
         uint64_t get_water_used_delta();
+        void start_watering_timer();
+        uint64_t get_watering_elapsed_seconds() const;
         ~IrrigationController();
 };

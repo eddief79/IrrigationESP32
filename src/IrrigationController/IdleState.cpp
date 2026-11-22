@@ -22,7 +22,9 @@ void IdleState::update()
     if (delay_ >= GeneralConfig::FLOW_CHECK_DELAY_SECONDS 
         && controller_->get_flow_meter().getFlowRate() > GeneralConfig::ZERO_FLOW_RATE_THRESHOLD)
     {
-        controller_->transition_to(new ErrorState("Water flow detected in Idle state. All valves should be closed."));
+        controller_->transition_to(new ErrorState(
+            "Water flow detected in Idle state. All valves should be closed.",
+            IrrigationErrorCode::WaterFlowWhileIdle));
     }
 }
 
@@ -40,8 +42,9 @@ bool IdleState::process_request()
                 controller_->transition_to(new OpeningValveState(request.zone));
                 return true;
             case RequestType::StopWatering:
-                controller_->transition_to(new ErrorState("Stop watering requested in the idle state. Nothing to stop."));
-                return true;
+                controller_->eventListener_->on_error(
+                    static_cast<uint8_t>(IrrigationErrorCode::StopRequestedWhileIdle), request.zone);
+                return false;
         }
     }
     return false;

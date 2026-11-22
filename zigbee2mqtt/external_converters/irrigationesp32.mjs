@@ -10,6 +10,17 @@ const endpoints = {
     zone_6: 6,
 };
 
+const irrigationErrors = {
+    no_error: 0,
+    water_flow_while_idle: 1,
+    stop_requested_while_idle: 2,
+    no_water_flow: 3,
+    maximum_duration_exceeded: 4,
+    maximum_volume_exceeded: 5,
+    start_requested_while_watering: 6,
+    stop_requested_for_inactive_zone: 7,
+};
+
 export default {
     zigbeeModel: ["IrrigationESP32"],
     model: "IrrigationESP32-6Z",
@@ -26,6 +37,7 @@ export default {
                 totalVolumeL: {name: "totalVolumeL", ID: 0x0001, type: Zcl.DataType.SINGLE},
                 zoneVolumeL: {name: "zoneVolumeL", ID: 0x0002, type: Zcl.DataType.SINGLE},
                 lastCycleVolumeL: {name: "lastCycleVolumeL", ID: 0x0003, type: Zcl.DataType.SINGLE},
+                errorCode: {name: "errorCode", ID: 0x0004, type: Zcl.DataType.ENUM8},
             },
             commands: {},
             commandsResponse: {},
@@ -70,5 +82,17 @@ export default {
             reporting: {min: 0, max: 3600, change: 0.001},
             endpointNames: Object.keys(endpoints),
         }),
+        ...Object.keys(endpoints).map((endpointName) =>
+            m.enumLookup({
+                name: "irrigation_error",
+                cluster: "irrigationMeasurements",
+                attribute: "errorCode",
+                description: "Most recent irrigation error",
+                lookup: irrigationErrors,
+                access: "STATE_GET",
+                reporting: {min: 0, max: 3600, change: 1},
+                endpointName,
+            }),
+        ),
     ],
 };

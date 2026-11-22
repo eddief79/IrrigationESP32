@@ -24,6 +24,7 @@ class ZigbeeController : public IrrigationEventListener
         static void zigbee_action_handler(ezb_zcl_core_action_callback_id_t callback_id, void* message);
         static void set_zigbee_zone_state(uint8_t zone, bool on);
         static void set_zigbee_zone_cycle_volume(uint8_t zone, float liters);
+        static void set_zigbee_error_code(uint8_t error_code, uint8_t zone);
         void initialize_zigbee();
         bool handle_zigbee_app_signal(const ezb_app_signal_t* signal);
         esp_err_t create_zone_endpoints();
@@ -33,6 +34,7 @@ class ZigbeeController : public IrrigationEventListener
         ZigbeeController(IrrigationController& controller);
         void start();
         void on_request_rejected(const IrrigationRequest& request) override;
+        void on_error(uint8_t error_code, uint8_t zone) override;
         void on_watering_started(uint8_t zone) override;
         void on_watering_completed(uint8_t zone, float liters) override;
         void on_measurements_updated() override;
