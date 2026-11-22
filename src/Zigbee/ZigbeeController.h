@@ -23,6 +23,7 @@ class ZigbeeController : public IrrigationEventListener
         static bool zigbee_app_signal_handler(const ezb_app_signal_t* signal);
         static void zigbee_action_handler(ezb_zcl_core_action_callback_id_t callback_id, void* message);
         static void set_zigbee_zone_state(uint8_t zone, bool on);
+        static void set_zigbee_zone_cycle_volume(uint8_t zone, float liters);
         void initialize_zigbee();
         bool handle_zigbee_app_signal(const ezb_app_signal_t* signal);
         esp_err_t create_zone_endpoints();
