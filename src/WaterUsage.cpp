@@ -73,3 +73,17 @@ void WaterUsage::increment_total(uint8_t zone, uint64_t volume_ml)
         totalVolume_ml_ += volume_ml;
     }
 }
+
+uint64_t WaterUsage::get_total_volume()
+{
+    return totalVolume_ml_;
+}
+
+uint64_t WaterUsage::get_zone_volume(uint8_t zone)
+{
+    if (zone < GeneralConfig::ZONE_COUNT)
+    {
+        return zoneTotals_ml_[zone];
+    }
+    return 0;
+}
