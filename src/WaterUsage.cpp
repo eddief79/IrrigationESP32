@@ -71,19 +71,30 @@ void WaterUsage::increment_total(uint8_t zone, uint64_t volume_ml)
     {
         zoneTotals_ml_[zone] += volume_ml;
         totalVolume_ml_ += volume_ml;
+        currentCycleTotal_ml_ += volume_ml;
     }
 }
 
-uint64_t WaterUsage::get_total_volume()
+uint64_t WaterUsage::get_total_volume_ml()
 {
     return totalVolume_ml_;
 }
 
-uint64_t WaterUsage::get_zone_volume(uint8_t zone)
+uint64_t WaterUsage::get_zone_volume_ml(uint8_t zone)
 {
     if (zone < GeneralConfig::ZONE_COUNT)
     {
         return zoneTotals_ml_[zone];
     }
     return 0;
+}
+
+float WaterUsage::get_current_cycle_total_l()
+{
+    return static_cast<float>(currentCycleTotal_ml_) / 1000.0f;
+}
+
+void WaterUsage::reset_current_cycle_total()
+{
+    currentCycleTotal_ml_ = 0;
 }

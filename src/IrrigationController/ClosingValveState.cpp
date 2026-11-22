@@ -14,8 +14,10 @@ void ClosingValveState::on_enter()
 {
     controller_->valves_[valve_index_].close();
     controller_->get_water_usage().save_totals();
-    controller_->eventListener_->on_watering_completed(valve_index_, 1.0f); 
-    //TODO: Replace 1.0f with the actual amount of water that was dispensed during the watering session.
+    controller_->eventListener_->on_watering_completed(
+        valve_index_, 
+        controller_->get_water_usage().get_current_cycle_total_l());
+    controller_->get_water_usage().reset_current_cycle_total();
     controller_->transition_to(new IdleState());
 }
 
