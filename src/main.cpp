@@ -1,13 +1,15 @@
+#include "nvs_flash.h"
 #include "freertos/FreeRTOS.h"
-#include "IrrigationController/IrrigationController.h"
-#include "FlowMeter.h"
 #include "GeneralConfig.h"
 #include "HardwareConfig.h"
-#include <nvs_flash.h>
+#include "FlowMeter.h"
+#include "IrrigationController/IrrigationController.h"
 #include "Zigbee/ZigbeeController.h"
+#include "WaterUsage.h"
 
 FlowMeter meter(HardwareConfig::FLOW_METER_PIN);
-IrrigationController irrigation_controller(meter);
+WaterUsage water_usage;
+IrrigationController irrigation_controller(meter, water_usage);
 ZigbeeController zigbee_controller(irrigation_controller);
 
 extern "C" void app_main()

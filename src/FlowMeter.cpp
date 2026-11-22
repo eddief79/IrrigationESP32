@@ -2,6 +2,7 @@
 #include <driver/gpio.h>
 #include <esp_log.h>
 #include <esp_timer.h>
+#include "GeneralConfig.h"
 
 FlowMeter::FlowMeter()
 {
@@ -13,7 +14,7 @@ FlowMeter::FlowMeter(gpio_num_t pin)
     configure_hardware();
 }
 
-void FlowMeter::update()
+uint64_t FlowMeter::update()
 {
     // ---------------------------------------------------------
     // Volume calculation
@@ -21,12 +22,10 @@ void FlowMeter::update()
 
     uint32_t pulses = pulseCount_ - lastPulseCount_;
     lastPulseCount_ = pulseCount_;
-
-    float liters = static_cast<float>(pulses) / PULSES_PER_LITER;
-
-    totalLiters_ += liters;
-    sessionTotalLiters_ += liters;
-
+    uint64_t volume_ml = 
+        static_cast<uint64_t>(pulses) 
+        * MILLILITERS_PER_LITER 
+        / GeneralConfig::FLOW_METER_PULSES_PER_LITER;
 
     // ---------------------------------------------------------
     // Instantaneous flow calculation
@@ -38,7 +37,7 @@ void FlowMeter::update()
     if (lastPulseTimeUs == 0 || filteredPeriodUs == 0)
     {
         flowRate_ = 0.0f;
-        return;
+        return volume_ml;
     }
 
     uint64_t nowUs = esp_timer_get_time();
@@ -50,23 +49,15 @@ void FlowMeter::update()
     else
     {
         // Q = 60,000,000 / (pulses_per_liter × period_us)
-        flowRate_ = 60000000.0f / (PULSES_PER_LITER * static_cast<float>(filteredPeriodUs));
+        flowRate_ = 60000000.0f / (GeneralConfig::FLOW_METER_PULSES_PER_LITER * static_cast<float>(filteredPeriodUs));
     }
-}
 
-void FlowMeter::resetSessionTotal()
-{
-    sessionTotalLiters_ = 0.0f;
+    return volume_ml;
 }
 
 float FlowMeter::getFlowRate() const
 {
     return flowRate_;
-}
-
-float FlowMeter::getTotalLiters() const
-{
-    return totalLiters_;
 }
 
 void FlowMeter::configure_hardware()
@@ -89,10 +80,7 @@ void IRAM_ATTR FlowMeter::isrHandler(void *arg)
 
     if (meter->lastPulseTimeUs_ != 0)
     {
-        uint32_t periodUs =
-            static_cast<uint32_t>(
-                nowUs - meter->lastPulseTimeUs_
-            );
+        uint32_t periodUs = static_cast<uint32_t>(nowUs - meter->lastPulseTimeUs_);
 
         if (meter->filteredPeriodUs_ == 0)
         {
@@ -109,8 +97,7 @@ void IRAM_ATTR FlowMeter::isrHandler(void *arg)
                 static_cast<int32_t>(periodUs) -
                 static_cast<int32_t>(meter->filteredPeriodUs_);
 
-            meter->filteredPeriodUs_ +=
-                error >> FLOW_FILTER_SHIFT;
+            meter->filteredPeriodUs_ += error >> FLOW_FILTER_SHIFT;
         }
     }
 

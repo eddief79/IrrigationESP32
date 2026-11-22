@@ -4,15 +4,19 @@
 #include "IrrigationController/StateBase.h"
 #include "IrrigationController/IdleState.h"
 #include "IrrigationController/IrrigationEventListener.h"
+#include <FlowMeter.h>
+#include <WaterUsage.h>
 
-IrrigationController::IrrigationController(FlowMeter& flowMeter)
-    : state_(nullptr),
-      flowMeter_(flowMeter),
+IrrigationController::IrrigationController(FlowMeter& flowMeter, WaterUsage& waterUsage)
+    : flowMeter_(flowMeter),
+      waterUsage_(waterUsage),
+      state_(nullptr),
       valves_(new Valve[GeneralConfig::ZONE_COUNT])
 {
     requestQueue_ = xQueueCreate(10, sizeof(IrrigationRequest));
     configASSERT(requestQueue_ != nullptr);
     configure_valves();
+    waterUsage_.load_totals();
     transition_to(new IdleState());
 }
 
@@ -43,7 +47,7 @@ void IrrigationController::transition_to(StateBase *state)
 
 void IrrigationController::update()
 {
-    flowMeter_.update();
+    waterUsedDelta_ml_ = flowMeter_.update();
     state_->update();
 }
 
@@ -80,6 +84,21 @@ std::optional<IrrigationRequest> IrrigationController::get_next_request()
 void IrrigationController::set_event_listener(IrrigationEventListener *listener)
 {
     eventListener_ = listener;
+}
+
+FlowMeter &IrrigationController::get_flow_meter()
+{
+    return flowMeter_;
+}
+
+WaterUsage &IrrigationController::get_water_usage()
+{
+    return waterUsage_;
+}
+
+uint64_t IrrigationController::get_water_used_delta()
+{
+    return waterUsedDelta_ml_;
 }
 
 void IrrigationController::configure_valves()

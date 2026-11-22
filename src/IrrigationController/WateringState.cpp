@@ -3,6 +3,8 @@
 #include "IrrigationController/IrrigationController.h"
 #include "IrrigationController/ErrorState.h"
 #include "IrrigationController/ClosingValveState.h"
+#include "FlowMeter.h"
+#include "WaterUsage.h"
 
 WateringState::WateringState(int valve_index)
 {
@@ -17,6 +19,8 @@ void WateringState::on_enter()
 
 void WateringState::update()
 {
+    controller_->get_water_usage().increment_total(valve_index_, controller_->get_water_used_delta()); 
+    
     if (process_request())
         return;
 
@@ -25,7 +29,7 @@ void WateringState::update()
         ++delay_;
     
     if (delay_ >= GeneralConfig::FLOW_CHECK_DELAY_SECONDS 
-        && controller_->flowMeter_.getFlowRate() < GeneralConfig::MIN_WATERING_FLOW_RATE_THRESHOLD)
+        && controller_->get_flow_meter().getFlowRate() < GeneralConfig::MIN_WATERING_FLOW_RATE_THRESHOLD)
     {
         controller_->transition_to(new ErrorState("No water flow detected in Watering state."));
     }

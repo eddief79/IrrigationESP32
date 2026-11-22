@@ -11,7 +11,6 @@ OpeningValveState::OpeningValveState(int valve_index)
 
 void OpeningValveState::on_enter()
 {
-    controller_->flowMeter_.resetSessionTotal();
     controller_->valves_[valve_index_].open();
     controller_->transition_to(new WateringState(valve_index_));
 }

@@ -15,4 +15,7 @@ namespace GeneralConfig
 
     /// @brief The flow rate threshold, in liters per minute, below which the flow is considered too low for effective watering.
     constexpr float MIN_WATERING_FLOW_RATE_THRESHOLD = 0.5f;
+
+    /// @brief The number of pulses the flow meter generates per liter of water.
+    constexpr float FLOW_METER_PULSES_PER_LITER = 660.0f;
 }
