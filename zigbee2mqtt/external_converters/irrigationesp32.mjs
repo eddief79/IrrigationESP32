@@ -1,3 +1,4 @@
+import {Zcl} from "zigbee-herdsman";
 import * as m from "zigbee-herdsman-converters/lib/modernExtend";
 
 const endpoints = {
@@ -17,5 +18,46 @@ export default {
     extend: [
         m.deviceEndpoints({endpoints}),
         m.onOff({endpointNames: Object.keys(endpoints), powerOnBehavior: false}),
+        m.deviceAddCustomCluster("irrigationMeasurements", {
+            name: "irrigationMeasurements",
+            ID: 0xFC00,
+            attributes: {
+                flowRate: {name: "flowRate", ID: 0x0000, type: Zcl.DataType.SINGLE},
+                totalVolumeL: {name: "totalVolumeL", ID: 0x0001, type: Zcl.DataType.SINGLE},
+                zoneVolumeL: {name: "zoneVolumeL", ID: 0x0002, type: Zcl.DataType.SINGLE},
+            },
+            commands: {},
+            commandsResponse: {},
+        }),
+        m.numeric({
+            name: "flow_rate",
+            cluster: "irrigationMeasurements",
+            attribute: "flowRate",
+            description: "Current water flow rate",
+            unit: "L/min",
+            access: "STATE_GET",
+            reporting: {min: 1, max: 60, change: 0.05},
+            endpointNames: Object.keys(endpoints),
+        }),
+        m.numeric({
+            name: "total_volume_l",
+            cluster: "irrigationMeasurements",
+            attribute: "totalVolumeL",
+            description: "Total water volume across all zones",
+            unit: "L",
+            access: "STATE_GET",
+            reporting: {min: 1, max: 3600, change: 0.1},
+            endpointNames: Object.keys(endpoints),
+        }),
+        m.numeric({
+            name: "zone_volume_l",
+            cluster: "irrigationMeasurements",
+            attribute: "zoneVolumeL",
+            description: "Cumulative water volume for this zone",
+            unit: "L",
+            access: "STATE_GET",
+            reporting: {min: 1, max: 3600, change: 0.1},
+            endpointNames: Object.keys(endpoints),
+        }),
     ],
 };

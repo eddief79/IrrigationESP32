@@ -34,4 +34,5 @@ class ZigbeeController : public IrrigationEventListener
         void on_request_rejected(const IrrigationRequest& request) override;
         void on_watering_started(uint8_t zone) override;
         void on_watering_completed(uint8_t zone, float liters) override;
+        void on_measurements_updated() override;
 };

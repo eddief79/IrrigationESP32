@@ -10,4 +10,5 @@ class IrrigationEventListener
         // virtual void on_error(const char* message) = 0;
         virtual void on_watering_started(uint8_t zone) = 0;
         virtual void on_watering_completed(uint8_t zone, float liters) = 0;
+        virtual void on_measurements_updated() = 0;
 };

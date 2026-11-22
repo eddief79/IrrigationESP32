@@ -49,6 +49,8 @@ void IrrigationController::update()
 {
     waterUsedDelta_ml_ = flowMeter_.update();
     state_->update();
+    if (eventListener_ != nullptr)
+        eventListener_->on_measurements_updated();
 }
 
 bool IrrigationController::request_start_watering(uint8_t  zone)

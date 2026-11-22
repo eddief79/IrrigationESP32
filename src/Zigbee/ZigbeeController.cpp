@@ -3,11 +3,18 @@
 #include "freertos/timers.h"
 #include "Zigbee/ZigbeeController.h"
 #include "IrrigationController/IrrigationController.h"
+#include "FlowMeter.h"
+#include "WaterUsage.h"
 #include "GeneralConfig.h"
+#include <ezbee/zcl/cluster/custom.h>
 
 constexpr char TAG[] = "IRRIGATION_ZIGBEE";
 constexpr uint8_t FIRST_ENDPOINT = 1;
 constexpr uint32_t ALL_ZIGBEE_CHANNELS = 0x07FFF800U;
+constexpr uint16_t IRRIGATION_MEASUREMENTS_CLUSTER_ID = 0xFC00;
+constexpr uint16_t FLOW_RATE_ATTRIBUTE_ID = 0x0000;
+constexpr uint16_t TOTAL_VOLUME_ATTRIBUTE_ID = 0x0001;
+constexpr uint16_t ZONE_VOLUME_ATTRIBUTE_ID = 0x0002;
 constexpr char MANUFACTURER[] = "\x0f" "Open Irrigation";
 constexpr char MODEL[] = "\x0f" "IrrigationESP32";
 
@@ -150,16 +157,33 @@ esp_err_t ZigbeeController::create_zone_endpoints()
         };
 
         ezb_zcl_on_off_cluster_server_config_t on_off_config = {.on_off = false};
+        ezb_zcl_custom_cluster_config_t measurements_config = {
+            .cluster_id = IRRIGATION_MEASUREMENTS_CLUSTER_ID,
+            .init_func = nullptr,
+            .deinit_func = nullptr,
+        };
 
         ezb_zcl_cluster_desc_t basic = ezb_zcl_basic_create_cluster_desc(&basic_config, EZB_ZCL_CLUSTER_SERVER);
         ezb_zcl_cluster_desc_t identify = ezb_zcl_identify_create_cluster_desc(&identify_config, EZB_ZCL_CLUSTER_SERVER);
         ezb_zcl_cluster_desc_t on_off = ezb_zcl_on_off_create_cluster_desc(&on_off_config, EZB_ZCL_CLUSTER_SERVER);
+        ezb_zcl_cluster_desc_t measurements = ezb_zcl_custom_create_cluster_desc(&measurements_config, EZB_ZCL_CLUSTER_SERVER);
 
-        if (basic == nullptr || identify == nullptr || on_off == nullptr)
+        if (basic == nullptr || identify == nullptr || on_off == nullptr || measurements == nullptr)
             return ESP_FAIL;
 
         ESP_ERROR_CHECK(ezb_zcl_basic_cluster_desc_add_attr(basic, EZB_ZCL_ATTR_BASIC_MANUFACTURER_NAME_ID, MANUFACTURER));
         ESP_ERROR_CHECK(ezb_zcl_basic_cluster_desc_add_attr(basic, EZB_ZCL_ATTR_BASIC_MODEL_IDENTIFIER_ID, MODEL));
+
+        float flow_rate = 0.0f;
+        float total_volume_l = 0.0f;
+        float zone_volume_l = 0.0f;
+        constexpr uint8_t READABLE_REPORTABLE = EZB_ZCL_ATTR_ACCESS_READ | EZB_ZCL_ATTR_ACCESS_REPORTING;
+        ESP_ERROR_CHECK(ezb_zcl_custom_cluster_desc_add_attr(
+            measurements, FLOW_RATE_ATTRIBUTE_ID, EZB_ZCL_ATTR_TYPE_SINGLE, READABLE_REPORTABLE, &flow_rate));
+        ESP_ERROR_CHECK(ezb_zcl_custom_cluster_desc_add_attr(
+            measurements, TOTAL_VOLUME_ATTRIBUTE_ID, EZB_ZCL_ATTR_TYPE_SINGLE, READABLE_REPORTABLE, &total_volume_l));
+        ESP_ERROR_CHECK(ezb_zcl_custom_cluster_desc_add_attr(
+            measurements, ZONE_VOLUME_ATTRIBUTE_ID, EZB_ZCL_ATTR_TYPE_SINGLE, READABLE_REPORTABLE, &zone_volume_l));
 
         const uint8_t endpoint_id = FIRST_ENDPOINT + zone;
         const ezb_af_ep_config_t endpoint_config = {
@@ -178,6 +202,7 @@ esp_err_t ZigbeeController::create_zone_endpoints()
         ESP_ERROR_CHECK(ezb_af_endpoint_add_cluster_desc(endpoint, basic));
         ESP_ERROR_CHECK(ezb_af_endpoint_add_cluster_desc(endpoint, identify));
         ESP_ERROR_CHECK(ezb_af_endpoint_add_cluster_desc(endpoint, on_off));
+        ESP_ERROR_CHECK(ezb_af_endpoint_add_cluster_desc(endpoint, measurements));
         ESP_ERROR_CHECK(ezb_af_device_add_endpoint_desc(device, endpoint));
     }
 
@@ -242,4 +267,43 @@ void ZigbeeController::on_watering_started(uint8_t zone)
 void ZigbeeController::on_watering_completed(uint8_t zone, float liters)
 {
     set_zigbee_zone_state(zone, false);
+}
+
+void ZigbeeController::on_measurements_updated()
+{
+    float flow_rate = irigationController_.get_flow_meter().getFlowRate();
+    float total_volume_l = static_cast<float>(irigationController_.get_water_usage().get_total_volume()) / 1000.0f;
+
+    esp_zigbee_lock_acquire(portMAX_DELAY);
+    for (uint8_t zone = 0; zone < GeneralConfig::ZONE_COUNT; ++zone)
+    {
+        const uint8_t endpoint = FIRST_ENDPOINT + zone;
+        float zone_volume_l = static_cast<float>(irigationController_.get_water_usage().get_zone_volume(zone)) / 1000.0f;
+        const struct
+        {
+            uint16_t id;
+            void *value;
+        } attributes[] = {
+            {FLOW_RATE_ATTRIBUTE_ID, &flow_rate},
+            {TOTAL_VOLUME_ATTRIBUTE_ID, &total_volume_l},
+            {ZONE_VOLUME_ATTRIBUTE_ID, &zone_volume_l},
+        };
+
+        for (const auto& attribute : attributes)
+        {
+            const ezb_zcl_status_t status = ezb_zcl_set_attr_value(
+                endpoint,
+                IRRIGATION_MEASUREMENTS_CLUSTER_ID,
+                EZB_ZCL_CLUSTER_SERVER,
+                attribute.id,
+                EZB_ZCL_STD_MANUF_CODE,
+                attribute.value,
+                false);
+
+            if (status != EZB_ZCL_STATUS_SUCCESS)
+                ESP_LOGW(TAG, "Failed updating measurement 0x%04x on endpoint %u (status 0x%02x)",
+                         attribute.id, endpoint, status);
+        }
+    }
+    esp_zigbee_lock_release();
 }
