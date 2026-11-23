@@ -20,6 +20,12 @@ class ErrorState : public StateBase
         std::string error_message_;
         IrrigationErrorCode error_code_;
         uint8_t active_zone_;
+        int64_t flowClearStartTimeUs_ = 0;
+        int64_t nowUs_ = 0;
+        bool flowClearTimerActive_ = false;
+        void update_timer();
+        bool no_flow();
+        bool restart_conditions_met();
 
     public:
         ErrorState(std::string error_message, IrrigationErrorCode error_code, uint8_t active_zone = 0xFF);

@@ -76,8 +76,8 @@ bool WateringState::process_request()
         switch (request.type)
         {
             case RequestType::StartWatering:
-                ESP_LOGW(TAG, "Ignoring start request for zone %u while zone %u is watering",
-                         request.zone + 1, valve_index_ + 1);
+                ESP_LOGW(TAG, "Ignoring start request for zone %u while zone %u is watering", 
+                    request.zone + 1, valve_index_ + 1);
                 controller_->eventListener_->on_error(
                     static_cast<uint8_t>(IrrigationErrorCode::StartRequestedWhileWatering), request.zone);
                 return false;
@@ -89,8 +89,8 @@ bool WateringState::process_request()
                 }
                 else
                 {
-                    ESP_LOGW(TAG, "Ignoring stop request for zone %u while zone %u is watering",
-                             request.zone + 1, valve_index_ + 1);
+                    ESP_LOGW(TAG, "Ignoring stop request for zone %u while zone %u is watering", 
+                        request.zone + 1, valve_index_ + 1);
                     controller_->eventListener_->on_error(
                         static_cast<uint8_t>(IrrigationErrorCode::StopRequestedForInactiveZone), request.zone);
                     return false;

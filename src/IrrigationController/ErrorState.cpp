@@ -1,20 +1,23 @@
+#include "IrrigationController/IdleState.h"
 #include "IrrigationController/ErrorState.h"
 #include "GeneralConfig.h"
 #include "IrrigationController/IrrigationController.h"
 #include "IrrigationController/IrrigationEventListener.h"
+#include "FlowMeter.h"
 #include "WaterUsage.h"
 #include <esp_log.h>
+#include <esp_timer.h>
 #include <utility>
 
 namespace
 {
-constexpr char TAG[] = "IRRIGATION_ERROR";
+    constexpr char TAG[] = "IRRIGATION_ERROR";
 }
 
 ErrorState::ErrorState(std::string error_message, IrrigationErrorCode error_code, uint8_t active_zone)
-	: error_message_(std::move(error_message)),
-	  error_code_(error_code),
-	  active_zone_(active_zone)
+    : error_message_(std::move(error_message)),
+      error_code_(error_code),
+      active_zone_(active_zone)
 {
 }
 
@@ -41,4 +44,49 @@ void ErrorState::on_enter()
 
 void ErrorState::update()
 {
+	while (controller_->get_next_request().has_value())
+	{
+		ESP_LOGW(TAG, "Discarding irrigation request while error is latched");
+	}
+
+	update_timer();
+
+	if (restart_conditions_met())
+	{
+		ESP_LOGI(TAG, "Restart conditions met; returning to idle");
+		controller_->transition_to(new IdleState());
+	}
+}
+
+void ErrorState::update_timer()
+{
+	if (controller_->get_flow_meter().getFlowRate() > GeneralConfig::ZERO_FLOW_RATE_THRESHOLD)
+	{
+		flowClearStartTimeUs_ = 0;
+		flowClearTimerActive_ = false;
+		return;
+	}
+
+	nowUs_ = esp_timer_get_time();
+	
+	if (!flowClearTimerActive_)
+	{
+		flowClearStartTimeUs_ = nowUs_;
+		flowClearTimerActive_ = true;
+		return;
+	}
+}
+
+bool ErrorState::no_flow()
+{
+	if (!flowClearTimerActive_)
+		return false;
+
+    const uint64_t clearDurationUs = static_cast<uint64_t>(GeneralConfig::ERROR_RECOVERY_CLEAR_SECONDS) * 1000000ULL;
+	return nowUs_ - flowClearStartTimeUs_ >= static_cast<int64_t>(clearDurationUs);
+}
+
+bool ErrorState::restart_conditions_met()
+{
+    return no_flow();
 }

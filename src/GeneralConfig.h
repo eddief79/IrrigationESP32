@@ -10,6 +10,9 @@ namespace GeneralConfig
     /// This allows the flow to stabilize and reduces the chance of raising false errors.
     constexpr uint8_t FLOW_CHECK_DELAY_SECONDS = 3;
 
+    /// @brief Time flow must remain below the idle threshold before clearing an error state.
+    constexpr uint8_t ERROR_RECOVERY_CLEAR_SECONDS = 3;
+
     /// @brief Maximum watering cycle duration before entering the error state.
     constexpr uint32_t MAX_WATERING_DURATION_SECONDS = 60 * 60;
 
