@@ -42,7 +42,7 @@ bool IdleState::process_request()
                 controller_->transition_to(new OpeningValveState(request.zone));
                 return true;
             case RequestType::StopWatering:
-                controller_->eventListener_->on_error(
+                controller_->get_event_listener()->on_error(
                     static_cast<uint8_t>(IrrigationErrorCode::StopRequestedWhileIdle), request.zone);
                 return false;
         }

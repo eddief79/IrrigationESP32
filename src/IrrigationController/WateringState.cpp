@@ -21,7 +21,7 @@ void WateringState::on_enter()
 {
     delay_ = 0;
     controller_->start_watering_timer();
-    controller_->eventListener_->on_watering_started(valve_index_);
+    controller_->get_event_listener()->on_watering_started(valve_index_);
 }
 
 void WateringState::update()
@@ -78,7 +78,7 @@ bool WateringState::process_request()
             case RequestType::StartWatering:
                 ESP_LOGW(TAG, "Ignoring start request for zone %u while zone %u is watering", 
                     request.zone + 1, valve_index_ + 1);
-                controller_->eventListener_->on_error(
+                controller_->get_event_listener()->on_error(
                     static_cast<uint8_t>(IrrigationErrorCode::StartRequestedWhileWatering), request.zone);
                 return false;
             case RequestType::StopWatering:
@@ -91,7 +91,7 @@ bool WateringState::process_request()
                 {
                     ESP_LOGW(TAG, "Ignoring stop request for zone %u while zone %u is watering", 
                         request.zone + 1, valve_index_ + 1);
-                    controller_->eventListener_->on_error(
+                    controller_->get_event_listener()->on_error(
                         static_cast<uint8_t>(IrrigationErrorCode::StopRequestedForInactiveZone), request.zone);
                     return false;
                 }

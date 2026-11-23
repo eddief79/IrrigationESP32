@@ -54,6 +54,24 @@ void IrrigationController::update()
         eventListener_->on_measurements_updated();
 }
 
+void IrrigationController::open_valve(uint8_t zone)
+{
+    valves_[zone].open();
+}
+
+void IrrigationController::close_valve(uint8_t zone)
+{
+    valves_[zone].close();
+}
+
+void IrrigationController::close_all_valves()
+{
+    for (uint8_t zone = 0; zone < GeneralConfig::ZONE_COUNT; ++zone)
+    {
+        valves_[zone].close();
+    }
+}
+
 bool IrrigationController::request_start_watering(uint8_t  zone)
 {
     IrrigationRequest request{
@@ -87,6 +105,11 @@ std::optional<IrrigationRequest> IrrigationController::get_next_request()
 void IrrigationController::set_event_listener(IrrigationEventListener *listener)
 {
     eventListener_ = listener;
+}
+
+IrrigationEventListener *IrrigationController::get_event_listener()
+{
+    return eventListener_;
 }
 
 FlowMeter &IrrigationController::get_flow_meter()

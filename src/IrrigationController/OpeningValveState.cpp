@@ -11,7 +11,7 @@ OpeningValveState::OpeningValveState(int valve_index)
 
 void OpeningValveState::on_enter()
 {
-    controller_->valves_[valve_index_].open();
+    controller_->open_valve(valve_index_);
     controller_->transition_to(new WateringState(valve_index_));
 }
 
