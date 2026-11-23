@@ -4,9 +4,9 @@
 #include "IrrigationController/StateBase.h"
 #include "IrrigationController/IdleState.h"
 #include "IrrigationController/IrrigationEventListener.h"
-#include <FlowMeter.h>
-#include <WaterUsage.h>
-#include <esp_timer.h>
+#include "FlowMeter.h"
+#include "WaterUsage.h"
+#include "esp_timer.h"
 
 IrrigationController::IrrigationController(FlowMeter& flowMeter, WaterUsage& waterUsage)
     : flowMeter_(flowMeter),

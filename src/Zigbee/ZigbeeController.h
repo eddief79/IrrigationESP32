@@ -5,7 +5,7 @@
 #include "ezbee/zcl/cluster/identify_desc.h"
 #include "ezbee/zcl/cluster/on_off_desc.h"
 #include "ezbee/zcl/zcl_common.h"
-#include <esp_zigbee.h>
+#include "esp_zigbee.h"
 #include "IrrigationController/IrrigationEventListener.h"
 
 class IrrigationController;

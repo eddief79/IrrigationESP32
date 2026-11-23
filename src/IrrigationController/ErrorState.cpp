@@ -5,9 +5,9 @@
 #include "IrrigationController/IrrigationEventListener.h"
 #include "FlowMeter.h"
 #include "WaterUsage.h"
-#include <esp_log.h>
-#include <esp_timer.h>
-#include <utility>
+#include "esp_log.h"
+#include "esp_timer.h"
+#include "utility"
 
 namespace
 {
@@ -73,7 +73,6 @@ void ErrorState::update_timer()
 	{
 		flowClearStartTimeUs_ = nowUs_;
 		flowClearTimerActive_ = true;
-		return;
 	}
 }
 

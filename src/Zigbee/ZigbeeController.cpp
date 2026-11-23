@@ -6,7 +6,7 @@
 #include "FlowMeter.h"
 #include "WaterUsage.h"
 #include "GeneralConfig.h"
-#include <ezbee/zcl/cluster/custom.h>
+#include "ezbee/zcl/cluster/custom.h"
 
 constexpr char TAG[] = "IRRIGATION_ZIGBEE";
 constexpr uint8_t FIRST_ENDPOINT = 1;

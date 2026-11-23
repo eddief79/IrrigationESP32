@@ -12,7 +12,7 @@ class StateBase
 
     void set_controller(IrrigationController *controller)
     {
-      this->controller_ = controller;
+      controller_ = controller;
     }
 
     virtual void on_enter() = 0;
